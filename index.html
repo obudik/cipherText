@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Cipher Webpage</title>
+</head>
+<body>
+    <h1>Simple Cipher Webpage</h1>
+    <label for="inputText">Input Text:</label>
+    <input type="text" id="inputText"><br><br>
+    
+    <label for="password">Password:</label>
+    <input type="text" id="password"><br><br>
+    
+    <button onclick="cipherText()">Cipher/Decipher</button><br><br>
+    
+    <label for="outputText">Output Text:</label>
+    <input type="text" id="outputText" readonly><br><br>
+
+    <script>
+        function cipherText() {
+            const inputText = document.getElementById('inputText').value;
+            const password = document.getElementById('password').value;
+            const outputText = document.getElementById('outputText');
+            
+            let result = '';
+            for (let i = 0; i < inputText.length; i++) {
+                const charCode = inputText.charCodeAt(i) ^ password.charCodeAt(i % password.length);
+                result += String.fromCharCode(charCode);
+            }
+            
+            outputText.value = result;
+        }
+    </script>
+</body>
+</html>
