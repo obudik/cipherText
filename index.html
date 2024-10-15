@@ -4,31 +4,118 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Simple Cipher Webpage</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 80%;
+            max-width: 600px;
+        }
+        h1 {
+            text-align: center;
+            color: #555;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+            color: #555;
+        }
+        textarea, input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 16px;
+            resize: vertical;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 20px;
+            background-color: #555;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #444;
+        }
+    </style>
 </head>
 <body>
-    <h1>Simple Cipher Webpage</h1>
-    <label for="inputText">Input Text:</label>
-    <input type="text" id="inputText"><br><br>
-    
-    <label for="password">Password:</label>
-    <input type="text" id="password"><br><br>
-    
-    <button onclick="cipherText()">Cipher/Decipher</button><br><br>
-    
-    <label for="outputText">Output Text:</label>
-    <input type="text" id="outputText" readonly><br><br>
+    <div class="container">
+        <h1>Simple Cipher Webpage</h1>
+        <label for="inputText">Input Text:</label>
+        <textarea id="inputText" rows="4"></textarea>
+        
+        <label for="password">Password:</label>
+        <input type="text" id="password">
+        
+        <button onclick="cipherText()">Cipher/Decipher</button>
+        
+        <label for="outputText">Output Text:</label>
+        <textarea id="outputText" rows="4" readonly></textarea>
+    </div>
 
     <script>
         function cipherText() {
-            const inputText = document.getElementById('inputText').value;
+            let inputText = document.getElementById('inputText').value;
             const password = document.getElementById('password').value;
             const outputText = document.getElementById('outputText');
             
-            let result = '';
-            for (let i = 0; i < inputText.length; i++) {
-                const charCode = inputText.charCodeAt(i) ^ password.charCodeAt(i % password.length);
-                result += String.fromCharCode(charCode);
+            if (inputText === '' || password === '') {
+                alert('Please enter both input text and password.');
+                return;
             }
+
+            let isBase64 = false;
+            let inputBytes;
+
+            try {
+                // Try to decode the input text from Base64
+                inputBytes = Uint8Array.from(atob(inputText), c => c.charCodeAt(0));
+                isBase64 = true;
+            } catch (e) {
+                // If decoding fails, it means the input is not Base64 encoded
+                inputBytes = new TextEncoder().encode(inputText);
+                isBase64 = false;
+            }
+
+            const passwordBytes = new TextEncoder().encode(password);
+            const resultBytes = new Uint8Array(inputBytes.length);
+
+            for (let i = 0; i < inputBytes.length; i++) {
+                resultBytes[i] = inputBytes[i] ^ passwordBytes[i % passwordBytes.length];
+            }
+
+            let result;
+            if (!isBase64) {
+                // Encode the result in Base64 to make it readable and copyable
+                result = btoa(String.fromCharCode(...resultBytes));
+            } else {
+                // Decode the result from Base64
+                result = new TextDecoder().decode(resultBytes);
+            }
+            
+            console.log('Input Text:', inputText);
+            console.log('Password:', password);
+            console.log('Ciphered/Deciphered Text:', result);
             
             outputText.value = result;
         }
